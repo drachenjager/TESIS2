@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Pronóstico USD/MXN</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" />
+</head>
+<body class="p-4">
+    <div class="container">
+        <h1>Pronóstico de USD/MXN</h1>
+        <form method="POST">
+            <label for="period_select">Selecciona el periodo:</label>
+            <select name="period_select" id="period_select" class="form-select" style="max-width:300px;">
+                <option value="1mo">1 mes</option>
+                <option value="3mo">3 meses</option>
+                <option value="6mo">6 meses</option>
+                <option value="1y">1 año</option>
+                <option value="2y">2 años</option>
+                <option value="5y">5 años</option>
+            </select>
+            <button type="submit" class="btn btn-primary mt-2">Consultar y pronosticar</button>
+        </form>
+
+        {% if tables %}
+            <h2 class="mt-4">Resultados de métricas</h2>
+            <div>
+                <!-- Muestra el DataFrame de métricas -->
+                {{ tables|safe }}
+            </div>
+        {% endif %}
+
+        {% if forecast_values %}
+            <h2 class="mt-4">Pronóstico del siguiente punto</h2>
+            <ul>
+            {% for model, fc_val in forecast_values.items() %}
+                <li><strong>{{ model }}:</strong> {{ fc_val }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
