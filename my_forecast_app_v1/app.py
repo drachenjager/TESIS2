@@ -22,18 +22,25 @@ def index():
         
         # 2. Leemos cuántos puntos quiere pronosticar el usuario
         horizon = int(request.form.get('forecast_horizon', 1))
+        # Porcentaje para testing
+        test_percent = float(request.form.get('test_percent', 20))
 
         # 3. Obtenemos los datos de Yahoo Finance para ese período
         df = get_data_from_yahoo(period=selected_period)
         # 4. Entrenamos los modelos y obtenemos predicciones + métricas
-        metrics_df, forecast_values, future_points = train_and_evaluate_all_models(df, forecast_steps=horizon)
+        metrics_df, forecast_values, pred_series, train_series, test_series = train_and_evaluate_all_models(
+            df,
+            forecast_steps=horizon,
+            test_size=max(1, int(len(df) * test_percent / 100))
+        )
         # 5. Renderizamos la plantilla con los resultados
         return render_template('index.html',
                                period=selected_period,
                                tables=[metrics_df.to_html(classes='table table-striped', index=False)],
                                forecast_values=forecast_values,
-                               actual_series=df['Close'].tolist(),
-                               forecast_series=future_points
+                               train_series=train_series,
+                               test_series=test_series,
+                               pred_series=pred_series
                                )
     else:
         # Método GET: solo mostramos el formulario vacío
@@ -57,13 +64,15 @@ def get_data_from_yahoo(period='1y'):
     close.columns = ["Date", "Close"]
     return close
 
-def train_and_evaluate_all_models(df, forecast_steps=1):
+def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
     ts = df['Close'].values
-    train_data = ts[:-5]
-    test_data  = ts[-5:]
+    if test_size >= len(ts):
+        test_size = max(1, len(ts) // 2)
+    train_data = ts[:-test_size]
+    test_data = ts[-test_size:]
     
     # Series de tiempo
-    sarima_metrics, _, sarima_forecast = train_sarima(train_data, test_data, forecast_steps)
+    sarima_metrics, sarima_pred, sarima_forecast = train_sarima(train_data, test_data, forecast_steps)
     hw_metrics, _, hw_forecast = train_holtwinters(train_data, test_data, forecast_steps)
 
     # ML
@@ -94,7 +103,11 @@ def train_and_evaluate_all_models(df, forecast_steps=1):
         "LSTM": lstm_forecast
     }
     
-    return metrics_df, forecast_values, sarima_forecast
+    train_series = train_data.tolist() + [None] * len(test_data)
+    test_series = [None] * len(train_data) + test_data.tolist()
+    pred_series = [None] * len(train_data) + sarima_pred.tolist()
+
+    return metrics_df, forecast_values, pred_series, train_series, test_series
 
 if __name__ == '__main__':
     # app.run(debug=True)  # Para desarrollo local

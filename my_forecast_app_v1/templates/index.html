@@ -20,6 +20,8 @@
             </select>
             <label for="forecast_horizon" class="mt-2">Puntos a pronosticar (1-30):</label>
             <input type="number" name="forecast_horizon" id="forecast_horizon" class="form-control" value="1" min="1" max="30" style="max-width:150px;" />
+            <label for="test_percent" class="mt-2">Porcentaje para testing:</label>
+            <input type="number" name="test_percent" id="test_percent" class="form-control" value="20" min="1" max="80" style="max-width:150px;" />
             <button type="submit" class="btn btn-primary mt-2">Consultar y pronosticar</button>
         </form>
 
@@ -42,21 +44,21 @@
         {% endif %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    {% if forecast_series %}
+    {% if train_series %}
     <script>
-        const actual = {{ actual_series|tojson }};
-        const forecast = {{ forecast_series|tojson }};
-        const labels = Array.from({length: actual.length + forecast.length}, (_,i) => i + 1);
-        const actualData = actual.concat(Array(forecast.length).fill(null));
-        const forecastData = Array(actual.length).fill(null).concat(forecast);
+        const train = {{ train_series|tojson }};
+        const testReal = {{ test_series|tojson }};
+        const testPred = {{ pred_series|tojson }};
+        const labels = Array.from({length: train.length}, (_,i) => i + 1);
 
         new Chart(document.getElementById('chart'), {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [
-                    {label: 'Precio', data: actualData, borderColor: 'blue', fill:false},
-                    {label: 'Pronóstico', data: forecastData, borderColor: 'red', fill:false}
+                    {label: 'Entrenamiento', data: train, borderColor: 'blue', fill:false},
+                    {label: 'Real (test)', data: testReal, borderColor: 'green', fill:false},
+                    {label: 'Predicción (test)', data: testPred, borderColor: 'red', fill:false}
                 ]
             }
         });
