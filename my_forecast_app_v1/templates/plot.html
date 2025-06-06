@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <title>Resultado del Modelo</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/flatly/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body class="p-4">
-    <div class="container">
+    <div class="container container-box">
         <h1>Modelo seleccionado: {{ model_name }}</h1>
         <h3 class="mt-4">Series de valores</h3>
         <p><strong>Entrenamiento:</strong> {{ train_series }}</p>
@@ -14,6 +15,7 @@
         <p><strong>Pronosticados:</strong> {{ pred_series }}</p>
         <canvas id="chart" height="100"></canvas>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const labels = {{ dates|tojson }};

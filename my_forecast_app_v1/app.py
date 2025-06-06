@@ -55,7 +55,7 @@ def index():
             metrics_df.style
             .apply(highlight_best, axis=1)
             .hide(axis="index")
-            .to_html(classes="table table-striped")
+            .to_html(classes="table table-striped", table_id="metrics-table")
         )
         return render_template(
             "index.html",

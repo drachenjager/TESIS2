@@ -1,0 +1,10 @@
+body {
+    background-color: #f5f7fa;
+}
+
+.container-box {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
