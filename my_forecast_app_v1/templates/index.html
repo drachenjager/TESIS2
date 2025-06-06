@@ -23,11 +23,11 @@
             <button type="submit" class="btn btn-primary mt-2">Consultar y pronosticar</button>
         </form>
 
-        {% if tables %}
+        {% if metrics_table %}
             <h2 class="mt-4">Resultados de métricas</h2>
             <div>
                 <!-- Muestra el DataFrame de métricas -->
-                {{ tables|safe }}
+                {{ metrics_table|safe }}
             </div>
         {% endif %}
 
@@ -40,7 +40,7 @@
             </ul>
         {% endif %}
 
-        {% if tables %}
+        {% if metrics_table %}
         <form method="POST" action="{{ url_for('plot') }}" target="_blank" class="mt-4">
             <p>Selecciona el modelo que prefieras:</p>
             {% for model in predictions_dict.keys() %}

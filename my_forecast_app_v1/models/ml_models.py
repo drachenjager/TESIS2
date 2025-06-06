@@ -31,6 +31,14 @@ def train_linear_regression(train_data, test_data, forecast_steps=1):
 
     mae = np.mean(np.abs(test_predictions - test_data))
     rmse = math.sqrt(np.mean((test_predictions - test_data) ** 2))
+    mape = np.mean(
+        np.abs((test_predictions - test_data) /
+               np.where(test_data == 0, np.finfo(float).eps, test_data))
+    ) * 100
+    r2 = 1 - (
+        np.sum((test_data - test_predictions) ** 2) /
+        np.sum((test_data - np.mean(test_data)) ** 2)
+    ) if np.sum((test_data - np.mean(test_data)) ** 2) != 0 else float("nan")
 
     forecast_next = []
     current_input = test_data[-1]
@@ -43,7 +51,9 @@ def train_linear_regression(train_data, test_data, forecast_steps=1):
     metrics = {
         "Modelo": "Regresión Lineal",
         "MAE": round(mae, 4),
-        "RMSE": round(rmse, 4)
+        "RMSE": round(rmse, 4),
+        "MAPE": round(mape, 4),
+        "R^2": round(r2, 4)
     }
 
     return metrics, test_predictions, [float(x) for x in forecast_next]
@@ -67,6 +77,14 @@ def train_random_forest(train_data, test_data, forecast_steps=1):
 
     mae = np.mean(np.abs(test_predictions - test_data))
     rmse = math.sqrt(np.mean((test_predictions - test_data) ** 2))
+    mape = np.mean(
+        np.abs((test_predictions - test_data) /
+               np.where(test_data == 0, np.finfo(float).eps, test_data))
+    ) * 100
+    r2 = 1 - (
+        np.sum((test_data - test_predictions) ** 2) /
+        np.sum((test_data - np.mean(test_data)) ** 2)
+    ) if np.sum((test_data - np.mean(test_data)) ** 2) != 0 else float("nan")
 
     forecast_next = []
     current_input = test_data[-1]
@@ -79,7 +97,9 @@ def train_random_forest(train_data, test_data, forecast_steps=1):
     metrics = {
         "Modelo": "Random Forest",
         "MAE": round(mae, 4),
-        "RMSE": round(rmse, 4)
+        "RMSE": round(rmse, 4),
+        "MAPE": round(mape, 4),
+        "R^2": round(r2, 4)
     }
 
     return metrics, test_predictions, [float(x) for x in forecast_next]

@@ -14,9 +14,17 @@ def train_sarima(train_data, test_data, forecast_steps=1):
     # Predicción en el set de prueba
     predictions = sarima_fit.predict(start=len(train_data), end=len(train_data)+len(test_data)-1, dynamic=False)
     
-    # Métricas (ejemplo: MAE, RMSE)
+    # Métricas
     mae = np.mean(np.abs(predictions - test_data))
-    rmse = math.sqrt(np.mean((predictions - test_data)**2))
+    rmse = math.sqrt(np.mean((predictions - test_data) ** 2))
+    mape = np.mean(
+        np.abs((predictions - test_data) /
+               np.where(test_data == 0, np.finfo(float).eps, test_data))
+    ) * 100
+    r2 = 1 - (
+        np.sum((test_data - predictions) ** 2) /
+        np.sum((test_data - np.mean(test_data)) ** 2)
+    ) if np.sum((test_data - np.mean(test_data)) ** 2) != 0 else float("nan")
     
     # Pronóstico del siguiente punto
     forecast_next = sarima_fit.predict(start=len(train_data)+len(test_data),
@@ -25,7 +33,9 @@ def train_sarima(train_data, test_data, forecast_steps=1):
     metrics = {
         "Modelo": "SARIMA",
         "MAE": round(mae, 4),
-        "RMSE": round(rmse, 4)
+        "RMSE": round(rmse, 4),
+        "MAPE": round(mape, 4),
+        "R^2": round(r2, 4)
     }
     
     return metrics, predictions, forecast_next.tolist()
@@ -47,7 +57,15 @@ def train_holtwinters(train_data, test_data, forecast_steps=1):
     predictions = hw_fit.predict(start=len(train_data), end=len(train_data)+len(test_data)-1)
     
     mae = np.mean(np.abs(predictions - test_data))
-    rmse = math.sqrt(np.mean((predictions - test_data)**2))
+    rmse = math.sqrt(np.mean((predictions - test_data) ** 2))
+    mape = np.mean(
+        np.abs((predictions - test_data) /
+               np.where(test_data == 0, np.finfo(float).eps, test_data))
+    ) * 100
+    r2 = 1 - (
+        np.sum((test_data - predictions) ** 2) /
+        np.sum((test_data - np.mean(test_data)) ** 2)
+    ) if np.sum((test_data - np.mean(test_data)) ** 2) != 0 else float("nan")
     
     forecast_next = hw_fit.predict(start=len(train_data)+len(test_data),
                                    end=len(train_data)+len(test_data)+forecast_steps-1)
@@ -55,7 +73,9 @@ def train_holtwinters(train_data, test_data, forecast_steps=1):
     metrics = {
         "Modelo": "Holt-Winters",
         "MAE": round(mae, 4),
-        "RMSE": round(rmse, 4)
+        "RMSE": round(rmse, 4),
+        "MAPE": round(mape, 4),
+        "R^2": round(r2, 4)
     }
     
     return metrics, predictions, forecast_next.tolist()
