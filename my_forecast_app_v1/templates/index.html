@@ -38,29 +38,28 @@
                 <li><strong>{{ model }}:</strong> {{ fc_val }}</li>
             {% endfor %}
             </ul>
-            <canvas id="chart" height="100"></canvas>
+        {% endif %}
+
+        {% if tables %}
+        <form method="POST" action="{{ url_for('plot') }}" target="_blank" class="mt-4">
+            <p>Selecciona el modelo que prefieras:</p>
+            {% for model in predictions_dict.keys() %}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="model_choice" id="rb_{{ loop.index }}" value="{{ model }}" {% if loop.first %}checked{% endif %}>
+                <label class="form-check-label" for="rb_{{ loop.index }}">{{ model }}</label>
+            </div>
+            {% endfor %}
+
+            <input type="hidden" name="train_series" value='{{ train_series|tojson }}'>
+            <input type="hidden" name="test_series" value='{{ test_series|tojson }}'>
+            <input type="hidden" name="dates" value='{{ dates|tojson }}'>
+            {% for model, preds in predictions_dict.items() %}
+            <input type="hidden" name="pred_{{ model }}" value='{{ preds|tojson }}'>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-success mt-2">Ejecutar</button>
+        </form>
         {% endif %}
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    {% if train_series %}
-    <script>
-        const train = {{ train_series|tojson }};
-        const testReal = {{ test_series|tojson }};
-        const testPred = {{ pred_series|tojson }};
-        const labels = Array.from({length: train.length}, (_,i) => i + 1);
-
-        new Chart(document.getElementById('chart'), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {label: 'Entrenamiento', data: train, borderColor: 'blue', fill:false},
-                    {label: 'Real (test)', data: testReal, borderColor: 'green', fill:false},
-                    {label: 'Predicción (test)', data: testPred, borderColor: 'red', fill:false}
-                ]
-            }
-        });
-    </script>
-    {% endif %}
 </body>
 </html>
