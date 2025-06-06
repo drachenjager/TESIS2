@@ -35,9 +35,28 @@ def index():
             )
         )
 
+        # Determinar el índice de la fila con mejor desempeño considerando
+        # simultáneamente las métricas de error (menor es mejor) y la de
+        # ajuste R^2 (mayor es mejor).
+        ranking = pd.DataFrame({
+            "MAE": metrics_df["MAE"].rank(ascending=True),
+            "RMSE": metrics_df["RMSE"].rank(ascending=True),
+            "MAPE": metrics_df["MAPE"].rank(ascending=True),
+            "R2": metrics_df["R^2"].rank(ascending=False),
+        })
+        best_idx = ranking.mean(axis=1).idxmin()
+
+        def highlight_best(row):
+            return ["background-color: gold"] * len(row) if row.name == best_idx else [""] * len(row)
+
         dates = df["Date"].dt.strftime("%Y-%m-%d").tolist()
         # 5. Renderizamos la plantilla con los resultados
-        metrics_table = metrics_df.to_html(classes="table table-striped", index=False)
+        metrics_table = (
+            metrics_df.style
+            .apply(highlight_best, axis=1)
+            .hide(axis="index")
+            .to_html(classes="table table-striped")
+        )
         return render_template(
             "index.html",
             period=selected_period,
