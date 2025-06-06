@@ -18,6 +18,8 @@
                 <option value="2y">2 años</option>
                 <option value="5y">5 años</option>
             </select>
+            <label for="forecast_horizon" class="mt-2">Puntos a pronosticar (1-30):</label>
+            <input type="number" name="forecast_horizon" id="forecast_horizon" class="form-control" value="1" min="1" max="30" style="max-width:150px;" />
             <button type="submit" class="btn btn-primary mt-2">Consultar y pronosticar</button>
         </form>
 
@@ -30,13 +32,35 @@
         {% endif %}
 
         {% if forecast_values %}
-            <h2 class="mt-4">Pronóstico del siguiente punto</h2>
+            <h2 class="mt-4">Pronóstico de los próximos puntos</h2>
             <ul>
             {% for model, fc_val in forecast_values.items() %}
                 <li><strong>{{ model }}:</strong> {{ fc_val }}</li>
             {% endfor %}
             </ul>
+            <canvas id="chart" height="100"></canvas>
         {% endif %}
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% if forecast_series %}
+    <script>
+        const actual = {{ actual_series|tojson }};
+        const forecast = {{ forecast_series|tojson }};
+        const labels = Array.from({length: actual.length + forecast.length}, (_,i) => i + 1);
+        const actualData = actual.concat(Array(forecast.length).fill(null));
+        const forecastData = Array(actual.length).fill(null).concat(forecast);
+
+        new Chart(document.getElementById('chart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {label: 'Precio', data: actualData, borderColor: 'blue', fill:false},
+                    {label: 'Pronóstico', data: forecastData, borderColor: 'red', fill:false}
+                ]
+            }
+        });
+    </script>
+    {% endif %}
 </body>
 </html>

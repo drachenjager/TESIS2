@@ -17,7 +17,7 @@ def prepare_data_dl(series, lag=1):
     X = X.reshape((X.shape[0], 1, X.shape[1]))
     return X, y
 
-def train_rnn(train_data, test_data):
+def train_rnn(train_data, test_data, forecast_steps=1):
     X_train, y_train = prepare_data_dl(train_data)
     
     # Definimos la RNN
@@ -47,19 +47,21 @@ def train_rnn(train_data, test_data):
     rmse = math.sqrt(np.mean((predictions - test_data)**2))
     
     # Forecast siguiente
-    last_test = test_data[-1]
-    next_input = np.array([[last_test]])
-    next_input = next_input.reshape((1,1,1))
-    forecast_next = model.predict(next_input, verbose=0)[0][0]
+    forecast_next = []
+    next_input = np.array([[test_data[-1]]]).reshape((1,1,1))
+    for _ in range(forecast_steps):
+        next_pred = model.predict(next_input, verbose=0)[0][0]
+        forecast_next.append(next_pred)
+        next_input = np.array([[next_pred]]).reshape((1,1,1))
     
     metrics = {
         "Modelo": "RNN",
         "MAE": round(mae, 4),
         "RMSE": round(rmse, 4)
     }
-    return metrics, predictions, float(forecast_next)
+    return metrics, predictions, [float(x) for x in forecast_next]
 
-def train_lstm(train_data, test_data):
+def train_lstm(train_data, test_data, forecast_steps=1):
     X_train, y_train = prepare_data_dl(train_data)
     
     model = Sequential()
@@ -84,13 +86,16 @@ def train_lstm(train_data, test_data):
     mae = np.mean(np.abs(predictions - test_data))
     rmse = math.sqrt(np.mean((predictions - test_data)**2))
     
-    last_test = test_data[-1]
-    next_input = np.array([[last_test]]).reshape((1,1,1))
-    forecast_next = model.predict(next_input, verbose=0)[0][0]
+    forecast_next = []
+    next_input = np.array([[test_data[-1]]]).reshape((1,1,1))
+    for _ in range(forecast_steps):
+        next_pred = model.predict(next_input, verbose=0)[0][0]
+        forecast_next.append(next_pred)
+        next_input = np.array([[next_pred]]).reshape((1,1,1))
     
     metrics = {
         "Modelo": "LSTM",
         "MAE": round(mae, 4),
         "RMSE": round(rmse, 4)
     }
-    return metrics, predictions, float(forecast_next)
+    return metrics, predictions, [float(x) for x in forecast_next]

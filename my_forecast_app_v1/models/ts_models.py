@@ -5,7 +5,7 @@ import math
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
-def train_sarima(train_data, test_data):
+def train_sarima(train_data, test_data, forecast_steps=1):
     # Por simplicidad, usaremos un (1,1,1) y estacionalidad = 12
     # En la práctica, se deben seleccionar p,d,q y parámetros estacionales mediante un proceso de búsqueda.
     model = SARIMAX(train_data, order=(1,1,1), seasonal_order=(1,1,1,12), enforce_stationarity=False, enforce_invertibility=False)
@@ -19,7 +19,8 @@ def train_sarima(train_data, test_data):
     rmse = math.sqrt(np.mean((predictions - test_data)**2))
     
     # Pronóstico del siguiente punto
-    forecast_next = sarima_fit.predict(start=len(train_data)+len(test_data), end=len(train_data)+len(test_data))
+    forecast_next = sarima_fit.predict(start=len(train_data)+len(test_data),
+                                       end=len(train_data)+len(test_data)+forecast_steps-1)
     
     metrics = {
         "Modelo": "SARIMA",
@@ -27,9 +28,9 @@ def train_sarima(train_data, test_data):
         "RMSE": round(rmse, 4)
     }
     
-    return metrics, predictions, float(forecast_next)
+    return metrics, predictions, forecast_next.tolist()
 
-def train_holtwinters(train_data, test_data):
+def train_holtwinters(train_data, test_data, forecast_steps=1):
     # Ver cuántos datos hay en train
     n_train = len(train_data)
     # Solo usar estacionalidad si hay >= 2 ciclos de 12
@@ -48,7 +49,8 @@ def train_holtwinters(train_data, test_data):
     mae = np.mean(np.abs(predictions - test_data))
     rmse = math.sqrt(np.mean((predictions - test_data)**2))
     
-    forecast_next = hw_fit.predict(start=len(train_data)+len(test_data), end=len(train_data)+len(test_data))
+    forecast_next = hw_fit.predict(start=len(train_data)+len(test_data),
+                                   end=len(train_data)+len(test_data)+forecast_steps-1)
     
     metrics = {
         "Modelo": "Holt-Winters",
@@ -56,4 +58,4 @@ def train_holtwinters(train_data, test_data):
         "RMSE": round(rmse, 4)
     }
     
-    return metrics, predictions, float(forecast_next)
+    return metrics, predictions, forecast_next.tolist()
