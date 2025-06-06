@@ -27,21 +27,18 @@ def index():
 
         # 3. Obtenemos los datos de Yahoo Finance para ese período
         df = get_data_from_yahoo(period=selected_period)
-        # 4. Entrenamos los modelos y obtenemos predicciones + métricas
-        metrics_df, forecast_values, pred_series, train_series, test_series = train_and_evaluate_all_models(
+        metrics_df, _, _, _, _ = train_and_evaluate_all_models(
             df,
             forecast_steps=horizon,
             test_size=max(1, int(len(df) * test_percent / 100))
         )
-        # 5. Renderizamos la plantilla con los resultados
-        return render_template('index.html',
-                               period=selected_period,
-                               tables=[metrics_df.to_html(classes='table table-striped', index=False)],
-                               forecast_values=forecast_values,
-                               train_series=train_series,
-                               test_series=test_series,
-                               pred_series=pred_series
-                               )
+        return render_template(
+            'index.html',
+            period=selected_period,
+            horizon=horizon,
+            test_percent=test_percent,
+            tables=[metrics_df.to_html(classes='table table-striped', index=False)]
+        )
     else:
         # Método GET: solo mostramos el formulario vacío
         return render_template('index.html')
@@ -108,6 +105,49 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
     pred_series = [None] * len(train_data) + sarima_pred.tolist()
 
     return metrics_df, forecast_values, pred_series, train_series, test_series
+
+
+@app.route('/results', methods=['POST'])
+def results_view():
+    selected_model = request.form.get('model_choice')
+    selected_period = request.form.get('period_select')
+    horizon = int(request.form.get('forecast_horizon', 1))
+    test_percent = float(request.form.get('test_percent', 20))
+
+    df = get_data_from_yahoo(period=selected_period)
+    ts = df['Close'].values
+    test_size = max(1, int(len(df) * test_percent / 100))
+    train_data = ts[:-test_size]
+    test_data = ts[-test_size:]
+
+    if selected_model == 'SARIMA':
+        _, preds, _ = train_sarima(train_data, test_data, horizon)
+    elif selected_model == 'Holt-Winters':
+        _, preds, _ = train_holtwinters(train_data, test_data, horizon)
+    elif selected_model == 'Regresión Lineal':
+        _, preds, _ = train_linear_regression(train_data, test_data, horizon)
+    elif selected_model == 'Random Forest':
+        _, preds, _ = train_random_forest(train_data, test_data, horizon)
+    elif selected_model == 'RNN':
+        _, preds, _ = train_rnn(train_data, test_data, horizon)
+    else:  # LSTM
+        _, preds, _ = train_lstm(train_data, test_data, horizon)
+
+    train_series = train_data.tolist() + [None] * len(test_data)
+    test_series = [None] * len(train_data) + test_data.tolist()
+    pred_series = [None] * len(train_data) + preds.tolist()
+    labels = df['Date'].dt.strftime('%Y-%m-%d').tolist()
+    rows = list(zip(labels, train_series, test_series, pred_series))
+
+    return render_template(
+        'results.html',
+        model=selected_model,
+        rows=rows,
+        labels=labels,
+        train_series=train_series,
+        test_series=test_series,
+        pred_series=pred_series
+    )
 
 if __name__ == '__main__':
     # app.run(debug=True)  # Para desarrollo local
