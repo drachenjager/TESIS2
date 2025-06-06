@@ -13,7 +13,7 @@ def create_supervised_data(series, lag=1):
     y = df['y'].values         # <-- 1D array
     return X, y
 
-def train_linear_regression(train_data, test_data):
+def train_linear_regression(train_data, test_data, forecast_steps=1):
     X, y = create_supervised_data(train_data, lag=1)
     model = LinearRegression()
     model.fit(X, y)
@@ -32,9 +32,13 @@ def train_linear_regression(train_data, test_data):
     mae = np.mean(np.abs(test_predictions - test_data))
     rmse = math.sqrt(np.mean((test_predictions - test_data) ** 2))
 
-    last_test = test_data[-1]
-    X_next = np.array([last_test]).reshape(1, -1)  # ✅ CORREGIDO
-    forecast_next = model.predict(X_next)[0]
+    forecast_next = []
+    current_input = test_data[-1]
+    for _ in range(forecast_steps):
+        X_next = np.array([current_input]).reshape(1, -1)
+        next_pred = model.predict(X_next)[0]
+        forecast_next.append(next_pred)
+        current_input = next_pred
 
     metrics = {
         "Modelo": "Regresión Lineal",
@@ -42,10 +46,10 @@ def train_linear_regression(train_data, test_data):
         "RMSE": round(rmse, 4)
     }
 
-    return metrics, test_predictions, float(forecast_next)
+    return metrics, test_predictions, [float(x) for x in forecast_next]
 
 
-def train_random_forest(train_data, test_data):
+def train_random_forest(train_data, test_data, forecast_steps=1):
     X, y = create_supervised_data(train_data, lag=1)
     model = RandomForestRegressor(n_estimators=100)
     model.fit(X, y)
@@ -64,9 +68,13 @@ def train_random_forest(train_data, test_data):
     mae = np.mean(np.abs(test_predictions - test_data))
     rmse = math.sqrt(np.mean((test_predictions - test_data) ** 2))
 
-    last_test = test_data[-1]
-    X_next = np.array([last_test]).reshape(1, -1)  # ✅ CORREGIDO
-    forecast_next = model.predict(X_next)[0]
+    forecast_next = []
+    current_input = test_data[-1]
+    for _ in range(forecast_steps):
+        X_next = np.array([current_input]).reshape(1, -1)
+        next_pred = model.predict(X_next)[0]
+        forecast_next.append(next_pred)
+        current_input = next_pred
 
     metrics = {
         "Modelo": "Random Forest",
@@ -74,4 +82,4 @@ def train_random_forest(train_data, test_data):
         "RMSE": round(rmse, 4)
     }
 
-    return metrics, test_predictions, float(forecast_next)
+    return metrics, test_predictions, [float(x) for x in forecast_next]
