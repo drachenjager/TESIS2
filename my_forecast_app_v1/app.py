@@ -20,18 +20,17 @@ def index():
         # 1. Leemos el período seleccionado en el formulario
         selected_period = request.form.get('period_select')
         
-        # 2. Leemos cuántos puntos quiere pronosticar el usuario
-        horizon = int(request.form.get('forecast_horizon', 1))
         # Porcentaje para testing
         test_percent = float(request.form.get('test_percent', 20))
 
         # 3. Obtenemos los datos de Yahoo Finance para ese período
         df = get_data_from_yahoo(period=selected_period)
         # 4. Entrenamos los modelos y obtenemos predicciones + métricas
+        test_size = max(1, int(len(df) * test_percent / 100))
         metrics_df, forecast_values, pred_series, train_series, test_series = train_and_evaluate_all_models(
             df,
-            forecast_steps=horizon,
-            test_size=max(1, int(len(df) * test_percent / 100))
+            forecast_steps=test_size,
+            test_size=test_size
         )
         # 5. Renderizamos la plantilla con los resultados
         return render_template('index.html',
