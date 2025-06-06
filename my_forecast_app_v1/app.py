@@ -46,10 +46,16 @@ def get_data_from_yahoo(period='1y'):
     """
     ticker = "MXN=X"  # El par USD/MXN en Yahoo Finance se identifica como "MXN=X"
     data = yf.download(ticker, period=period, interval="1d")
-    data = data[['Close']]  # Nos quedamos solo con el precio de cierre
-    data.dropna(inplace=True)
-    data.reset_index(inplace=True)
-    return data
+
+    # yfinance>=0.2 puede devolver columnas MultiIndex incluso para un solo ticker
+    if isinstance(data.columns, pd.MultiIndex):
+        close = data["Close"].iloc[:, 0]
+    else:
+        close = data["Close"]
+
+    close = close.dropna().reset_index()
+    close.columns = ["Date", "Close"]
+    return close
 
 def train_and_evaluate_all_models(df, forecast_steps=1):
     ts = df['Close'].values
