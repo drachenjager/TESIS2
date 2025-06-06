@@ -44,7 +44,15 @@ def train_rnn(train_data, test_data, forecast_steps=1):
     predictions = np.array(predictions)
     
     mae = np.mean(np.abs(predictions - test_data))
-    rmse = math.sqrt(np.mean((predictions - test_data)**2))
+    rmse = math.sqrt(np.mean((predictions - test_data) ** 2))
+    mape = np.mean(
+        np.abs((predictions - test_data) /
+               np.where(test_data == 0, np.finfo(float).eps, test_data))
+    ) * 100
+    r2 = 1 - (
+        np.sum((test_data - predictions) ** 2) /
+        np.sum((test_data - np.mean(test_data)) ** 2)
+    ) if np.sum((test_data - np.mean(test_data)) ** 2) != 0 else float("nan")
     
     # Forecast siguiente
     forecast_next = []
@@ -57,7 +65,9 @@ def train_rnn(train_data, test_data, forecast_steps=1):
     metrics = {
         "Modelo": "RNN",
         "MAE": round(mae, 4),
-        "RMSE": round(rmse, 4)
+        "RMSE": round(rmse, 4),
+        "MAPE": round(mape, 4),
+        "R^2": round(r2, 4)
     }
     return metrics, predictions, [float(x) for x in forecast_next]
 
@@ -84,7 +94,15 @@ def train_lstm(train_data, test_data, forecast_steps=1):
     predictions = np.array(predictions)
     
     mae = np.mean(np.abs(predictions - test_data))
-    rmse = math.sqrt(np.mean((predictions - test_data)**2))
+    rmse = math.sqrt(np.mean((predictions - test_data) ** 2))
+    mape = np.mean(
+        np.abs((predictions - test_data) /
+               np.where(test_data == 0, np.finfo(float).eps, test_data))
+    ) * 100
+    r2 = 1 - (
+        np.sum((test_data - predictions) ** 2) /
+        np.sum((test_data - np.mean(test_data)) ** 2)
+    ) if np.sum((test_data - np.mean(test_data)) ** 2) != 0 else float("nan")
     
     forecast_next = []
     next_input = np.array([[test_data[-1]]]).reshape((1,1,1))
@@ -96,6 +114,8 @@ def train_lstm(train_data, test_data, forecast_steps=1):
     metrics = {
         "Modelo": "LSTM",
         "MAE": round(mae, 4),
-        "RMSE": round(rmse, 4)
+        "RMSE": round(rmse, 4),
+        "MAPE": round(mape, 4),
+        "R^2": round(r2, 4)
     }
     return metrics, predictions, [float(x) for x in forecast_next]

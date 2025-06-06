@@ -37,10 +37,11 @@ def index():
 
         dates = df["Date"].dt.strftime("%Y-%m-%d").tolist()
         # 5. Renderizamos la plantilla con los resultados
+        metrics_table = metrics_df.to_html(classes="table table-striped", index=False)
         return render_template(
             "index.html",
             period=selected_period,
-            tables=[metrics_df.to_html(classes="table table-striped", index=False)],
+            metrics_table=metrics_table,
             forecast_values=forecast_values,
             train_series=train_series,
             test_series=test_series,
