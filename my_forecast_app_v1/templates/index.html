@@ -28,41 +28,39 @@
         {% if tables %}
             <h2 class="mt-4">Resultados de métricas</h2>
             <div>
-                <!-- Muestra el DataFrame de métricas -->
                 {{ tables|safe }}
             </div>
-        {% endif %}
-
-        {% if forecast_values %}
-            <h2 class="mt-4">Pronóstico de los próximos puntos</h2>
-            <ul>
-            {% for model, fc_val in forecast_values.items() %}
-                <li><strong>{{ model }}:</strong> {{ fc_val }}</li>
-            {% endfor %}
-            </ul>
-            <canvas id="chart" height="100"></canvas>
+            <form method="POST" action="/results" class="mt-3">
+                <input type="hidden" name="period_select" value="{{ period }}">
+                <input type="hidden" name="forecast_horizon" value="{{ horizon }}">
+                <input type="hidden" name="test_percent" value="{{ test_percent }}">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="model_choice" id="model1" value="SARIMA" checked>
+                    <label class="form-check-label" for="model1">SARIMA</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="model_choice" id="model2" value="Holt-Winters">
+                    <label class="form-check-label" for="model2">Holt-Winters</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="model_choice" id="model3" value="Regresión Lineal">
+                    <label class="form-check-label" for="model3">Regresión Lineal</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="model_choice" id="model4" value="Random Forest">
+                    <label class="form-check-label" for="model4">Random Forest</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="model_choice" id="model5" value="RNN">
+                    <label class="form-check-label" for="model5">RNN</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="model_choice" id="model6" value="LSTM">
+                    <label class="form-check-label" for="model6">LSTM</label>
+                </div>
+                <button type="submit" class="btn btn-success mt-2">Ejecutar</button>
+            </form>
         {% endif %}
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    {% if train_series %}
-    <script>
-        const train = {{ train_series|tojson }};
-        const testReal = {{ test_series|tojson }};
-        const testPred = {{ pred_series|tojson }};
-        const labels = Array.from({length: train.length}, (_,i) => i + 1);
-
-        new Chart(document.getElementById('chart'), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {label: 'Entrenamiento', data: train, borderColor: 'blue', fill:false},
-                    {label: 'Real (test)', data: testReal, borderColor: 'green', fill:false},
-                    {label: 'Predicción (test)', data: testPred, borderColor: 'red', fill:false}
-                ]
-            }
-        });
-    </script>
-    {% endif %}
 </body>
 </html>
