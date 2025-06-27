@@ -13,12 +13,17 @@
         <form method="POST">
             <label for="period_select">Selecciona el periodo:</label>
             <select name="period_select" id="period_select" class="form-select" style="max-width:300px;">
+                <option value="1d">1 día</option>
+                <option value="5d">5 días</option>
                 <option value="1mo">1 mes</option>
                 <option value="3mo">3 meses</option>
                 <option value="6mo">6 meses</option>
                 <option value="1y">1 año</option>
+                <option value="ytd">Año en curso</option>
                 <option value="2y">2 años</option>
                 <option value="5y">5 años</option>
+                <option value="10y">10 años</option>
+                <option value="max">Máx</option>
             </select>
             <label for="test_percent" class="mt-2">Porcentaje para testing:</label>
             <input type="number" name="test_percent" id="test_percent" class="form-control" value="20" min="1" max="80" style="max-width:150px;" />

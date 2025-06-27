@@ -77,8 +77,9 @@ def index():
 
 def get_data_from_yahoo(period="1y"):
     """
-    Descarga datos de USD/MXN de Yahoo Finance en base a un string de período:
-    '1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'
+    Descarga datos de USD/MXN de Yahoo Finance en base a un string de período.
+    Periodos válidos: '1d', '5d', '1mo', '3mo', '6mo', '1y', 'ytd', '2y',
+    '5y', '10y' y 'max'.
     """
     ticker = "MXN=X"  # El par USD/MXN en Yahoo Finance se identifica como "MXN=X"
     data = yf.download(ticker, period=period, interval="1d")

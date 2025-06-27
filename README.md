@@ -26,7 +26,24 @@ Antes de poder construir o desplegar la aplicación asegúrate de tener:
    python app.py
    ```
 
-   La aplicación quedará disponible en `http://localhost:8080`.
+
+    La aplicación quedará disponible en `http://localhost:8080`.
+
+## Períodos disponibles
+
+Al iniciar la aplicación podrás elegir el período de datos descargados desde Yahoo Finance. Las opciones son:
+
+- `1d`
+- `5d`
+- `1mo`
+- `3mo`
+- `6mo`
+- `1y`
+- `ytd`
+- `2y`
+- `5y`
+- `10y`
+- `max`
 
 ## Construir la imagen con Docker
 
