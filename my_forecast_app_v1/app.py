@@ -46,6 +46,9 @@ def index():
         })
         best_idx = ranking.mean(axis=1).idxmin()
 
+        # Formatear MAPE como porcentaje con símbolo %
+        metrics_df["MAPE"] = metrics_df["MAPE"].apply(lambda x: f"{x:.2f}%")
+
         def highlight_best(row):
             return ["background-color: gold"] * len(row) if row.name == best_idx else [""] * len(row)
 
