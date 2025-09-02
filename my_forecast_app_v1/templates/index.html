@@ -42,7 +42,7 @@
             <h2 class="mt-4">Pronóstico de los próximos puntos</h2>
             <ul>
             {% for model, fc_val in forecast_values.items() %}
-                <li><strong>{{ model }}:</strong> {{ fc_val }}</li>
+                <li><strong>{{ model }}:</strong> {{ "%.2f"|format(fc_val) }}</li>
             {% endfor %}
             </ul>
         {% endif %}
