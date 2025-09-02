@@ -8,6 +8,15 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 def train_sarima(train_data, test_data, forecast_steps=1):
     # Por simplicidad, usaremos un (1,1,1) y estacionalidad = 12
     # En la práctica, se deben seleccionar p,d,q y parámetros estacionales mediante un proceso de búsqueda.
+    if len(train_data) == 0 or len(test_data) == 0:
+        metrics = {
+            "Modelo": "SARIMA",
+            "MAE": float("nan"),
+            "RMSE": float("nan"),
+            "MAPE": float("nan"),
+            "R^2": float("nan"),
+        }
+        return metrics, np.array([]), [None] * forecast_steps
     model = SARIMAX(train_data, order=(1,1,1), seasonal_order=(1,1,1,12), enforce_stationarity=False, enforce_invertibility=False)
     sarima_fit = model.fit(disp=False)
     
@@ -41,6 +50,15 @@ def train_sarima(train_data, test_data, forecast_steps=1):
     return metrics, predictions, forecast_next.tolist()
 
 def train_holtwinters(train_data, test_data, forecast_steps=1):
+    if len(train_data) == 0 or len(test_data) == 0:
+        metrics = {
+            "Modelo": "Holt-Winters",
+            "MAE": float("nan"),
+            "RMSE": float("nan"),
+            "MAPE": float("nan"),
+            "R^2": float("nan"),
+        }
+        return metrics, np.array([]), [None] * forecast_steps
     # Ver cuántos datos hay en train
     n_train = len(train_data)
     # Solo usar estacionalidad si hay >= 2 ciclos de 12
