@@ -68,11 +68,22 @@ def index():
                 table_id="metrics-table",
             )
         )
+
+        def format_forecast(vals):
+            """Return a comma-separated string with two-decimal values."""
+            try:
+                return ", ".join(f"{v:.2f}" for v in vals if v is not None)
+            except TypeError:
+                return f"{vals:.2f}" if vals is not None else ""
+
+        formatted_forecasts = {
+            model: format_forecast(vals) for model, vals in forecast_values.items()
+        }
         return render_template(
             "index.html",
             period=selected_period,
             metrics_table=metrics_table,
-            forecast_values=forecast_values,
+            forecast_values=formatted_forecasts,
             train_series=train_series,
             test_series=test_series,
             predictions_dict=predictions_dict,
