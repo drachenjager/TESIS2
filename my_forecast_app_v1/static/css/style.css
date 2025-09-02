@@ -12,11 +12,11 @@ body {
 #metrics-table {
     border-collapse: collapse;
     margin-top: 10px;
-    border: 1px solid #dee2e6;
+    border: 1px solid #000;
 }
 
 #metrics-table th, #metrics-table td {
-    border: 1px solid #dee2e6;
+    border: 1px solid #000;
     padding: 8px;
     text-align: center;
 }
