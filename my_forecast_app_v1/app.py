@@ -172,6 +172,9 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
         ]
     )
 
+    # Expresar el MAPE como porcentaje
+    metrics_df["MAPE"] = metrics_df["MAPE"] * 100
+
     # Forecast "del siguiente punto" (por simplicidad tomamos el forecast devuelto)
     forecast_values = {
         "SARIMA": sarima_forecast,
