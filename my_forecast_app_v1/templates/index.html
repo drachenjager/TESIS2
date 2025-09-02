@@ -40,6 +40,7 @@
 
         {% if forecast_values %}
             <h2 class="mt-4">Pronóstico de los próximos puntos</h2>
+            <!-- forecast_values already holds comma-separated strings rounded to two decimals -->
             <ul>
             {% for model, fc_val in forecast_values.items() %}
                 <li><strong>{{ model }}:</strong> {{ fc_val }}</li>
