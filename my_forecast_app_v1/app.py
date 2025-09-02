@@ -69,8 +69,7 @@ def index():
                         "selector": "",
                         "props": [
                             ("border", "1px solid #000"),
-                            ("border-collapse", "separate"),
-                            ("border-spacing", "10px 0"),
+                            ("border-collapse", "collapse"),
                         ],
                     },
                     {

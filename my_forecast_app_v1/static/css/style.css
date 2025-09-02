@@ -10,13 +10,12 @@ body {
 }
 
 #metrics-table {
-    border-collapse: separate;
-    border-spacing: 10px 0;
+    border-collapse: collapse;
     margin-top: 10px;
 }
 
 #metrics-table th, #metrics-table td {
-    padding: 8px 12px;
+    padding: 8px;
     text-align: center;
 }
 
