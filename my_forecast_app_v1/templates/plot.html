@@ -10,9 +10,9 @@
     <div class="container container-box">
         <h1>Modelo seleccionado: {{ model_name }}</h1>
         <h3 class="mt-4">Series de valores</h3>
-        <p><strong>Entrenamiento:</strong> {{ train_series }}</p>
-        <p><strong>Reales (test):</strong> {{ test_series }}</p>
-        <p><strong>Pronosticados:</strong> {{ pred_series }}</p>
+        <p><strong>Entrenamiento:</strong> {{ train_display }}</p>
+        <p><strong>Reales (test):</strong> {{ test_display }}</p>
+        <p><strong>Pronosticados:</strong> {{ pred_display }}</p>
         <canvas id="chart" height="100"></canvas>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

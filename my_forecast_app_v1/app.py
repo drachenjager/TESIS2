@@ -179,6 +179,13 @@ def plot():
     dates = json.loads(request.form.get("dates"))
     pred_series = json.loads(request.form.get(f"pred_{model_name}"))
 
+    def format_series(series):
+        return ", ".join(f"{x:.2f}" for x in series if x is not None)
+
+    train_display = format_series(train_series)
+    test_display = format_series(test_series)
+    pred_display = format_series(pred_series)
+
     return render_template(
         "plot.html",
         model_name=model_name,
@@ -186,6 +193,9 @@ def plot():
         test_series=test_series,
         pred_series=pred_series,
         dates=dates,
+        train_display=train_display,
+        test_display=test_display,
+        pred_display=pred_display,
     )
 
 
