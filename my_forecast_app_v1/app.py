@@ -63,8 +63,23 @@ def index():
             .apply(highlight_best, axis=1)
             .format(format_dict)
             .hide(axis="index")
+            .set_table_styles(
+                [
+                    {
+                        "selector": "",
+                        "props": [
+                            ("border", "1px solid #000"),
+                            ("border-collapse", "collapse"),
+                        ],
+                    },
+                    {
+                        "selector": "th, td",
+                        "props": [("border", "1px solid #000")],
+                    },
+                ]
+            )
             .to_html(
-                classes="table table-striped table-bordered table-hover table-sm text-center",
+                classes="table table-striped table-hover table-sm text-center",
                 table_id="metrics-table",
             )
         )
