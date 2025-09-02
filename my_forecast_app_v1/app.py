@@ -1,10 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 import json
-import os
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
-from google.cloud import storage
 
 # Importamos funciones de modelado (veremos detalles luego)
 from models.ts_models import train_sarima, train_holtwinters
@@ -229,24 +227,6 @@ def plot():
         test_display=test_display,
         pred_display=pred_display,
     )
-
-
-@app.route("/save", methods=["POST"])
-def save_to_gcs():
-    data = request.get_json()
-    bucket_name = os.environ.get("GCS_BUCKET_NAME")
-    if not bucket_name:
-        return jsonify({"message": "GCS_BUCKET_NAME not configured"}), 500
-
-    client = storage.Client()
-    bucket = client.bucket(bucket_name)
-    model_name = data.get("model_name", "model")
-    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
-    blob_name = f"{model_name}_{timestamp}.json"
-    blob = bucket.blob(blob_name)
-    blob.upload_from_string(json.dumps(data), content_type="application/json")
-
-    return jsonify({"message": "Data saved to GCS", "blob": blob_name})
 
 
 if __name__ == "__main__":

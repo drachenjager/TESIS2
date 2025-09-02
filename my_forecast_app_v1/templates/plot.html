@@ -14,7 +14,6 @@
         <p><strong>Reales (test):</strong> {{ test_display }}</p>
         <p><strong>Pronosticados:</strong> {{ pred_display }}</p>
         <canvas id="chart" height="100"></canvas>
-        <button id="save-btn" class="btn btn-primary mt-3">Guardar en GCP</button>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -23,7 +22,6 @@
         const train = {{ train_series|tojson }};
         const testReal = {{ test_series|tojson }};
         const testPred = {{ pred_series|tojson }};
-        const modelName = {{ model_name|tojson }};
 
         new Chart(document.getElementById('chart'), {
             type: 'line',
@@ -35,23 +33,6 @@
                     {label: 'Pronóstico', data: testPred, borderColor: 'red', fill:false}
                 ]
             }
-        });
-
-        document.getElementById('save-btn').addEventListener('click', function() {
-            fetch('/save', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    model_name: modelName,
-                    train_series: train,
-                    test_series: testReal,
-                    pred_series: testPred,
-                    dates: labels
-                })
-            })
-            .then(resp => resp.json())
-            .then(data => alert(data.message))
-            .catch(err => console.error(err));
         });
     </script>
 </body>
