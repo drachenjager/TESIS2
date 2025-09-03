@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import json
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
+import io
 
 # Importamos funciones de modelado (veremos detalles luego)
 from models.ts_models import train_sarima, train_holtwinters
@@ -226,6 +227,48 @@ def plot():
         train_display=train_display,
         test_display=test_display,
         pred_display=pred_display,
+    )
+
+
+@app.route("/download_excel", methods=["POST"])
+def download_excel():
+    model_name = request.form.get("model_name")
+    train_series = json.loads(request.form.get("train_series"))
+    test_series = json.loads(request.form.get("test_series"))
+    pred_series = json.loads(request.form.get("pred_series"))
+    dates = json.loads(request.form.get("dates"))
+
+    df = pd.DataFrame(
+        {
+            "Date": dates,
+            "Entrenamiento": train_series,
+            "Real (test)": test_series,
+            "Pronóstico": pred_series,
+        }
+    )
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="Datos")
+        workbook = writer.book
+        worksheet = writer.sheets["Datos"]
+        chart = workbook.add_chart({"type": "line"})
+        for idx, col in enumerate(["Entrenamiento", "Real (test)", "Pronóstico"]):
+            chart.add_series(
+                {
+                    "name": col,
+                    "categories": ["Datos", 1, 0, len(df), 0],
+                    "values": ["Datos", 1, idx + 1, len(df), idx + 1],
+                }
+            )
+        worksheet.insert_chart("F2", chart)
+    output.seek(0)
+    filename = f"{model_name}_resultado.xlsx"
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
 
