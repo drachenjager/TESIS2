@@ -14,6 +14,14 @@
         <p><strong>Reales (test):</strong> {{ test_display }}</p>
         <p><strong>Pronosticados:</strong> {{ pred_display }}</p>
         <canvas id="chart" height="100"></canvas>
+        <form method="POST" action="{{ url_for('download_excel') }}" class="mt-3">
+            <input type="hidden" name="model_name" value="{{ model_name }}" />
+            <input type="hidden" name="train_series" value='{{ train_series|tojson }}' />
+            <input type="hidden" name="test_series" value='{{ test_series|tojson }}' />
+            <input type="hidden" name="pred_series" value='{{ pred_series|tojson }}' />
+            <input type="hidden" name="dates" value='{{ dates|tojson }}' />
+            <button type="submit" class="btn btn-primary">Guardar en Excel</button>
+        </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
