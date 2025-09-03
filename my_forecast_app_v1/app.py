@@ -36,22 +36,25 @@ def index():
             )
         )
 
-        # Determinar el índice de la fila con mejor desempeño considerando
-        # simultáneamente las métricas de error (menor es mejor) y la de
-        # ajuste R^2 (mayor es mejor).
+        # Determinar un ranking promedio considerando simultáneamente las
+        # métricas de error (menor es mejor) y la de ajuste R^2 (mayor es
+        # mejor). Agregamos una columna "Rank" para mostrar este orden en la
+        # tabla de métricas.
         ranking = pd.DataFrame({
             "MAE": metrics_df["MAE"].rank(ascending=True),
             "RMSE": metrics_df["RMSE"].rank(ascending=True),
             "MAPE": metrics_df["MAPE"].rank(ascending=True),
             "R2": metrics_df["R^2"].rank(ascending=False),
         })
-        best_idx = ranking.mean(axis=1).idxmin()
+        metrics_df["Rank"] = ranking.mean(axis=1).rank(method="dense").astype(int)
+        best_idx = metrics_df["Rank"].idxmin()
 
         format_dict = {
             "MAE": "{:.4f}",
             "RMSE": "{:.4f}",
             "MAPE": "{:.4f}%",
             "R^2": "{:.4f}",
+            "Rank": "{:.0f}",
         }
 
         def highlight_best(row):
