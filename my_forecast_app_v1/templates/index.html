@@ -13,22 +13,29 @@
         <form method="POST">
             <label for="period_select">Selecciona el periodo:</label>
             <select name="period_select" id="period_select" class="form-select" style="max-width:300px;">
-                <option value="1d">1 día</option>
-                <option value="5d">5 días</option>
-                <option value="1mo">1 mes</option>
-                <option value="3mo">3 meses</option>
-                <option value="6mo">6 meses</option>
-                <option value="1y">1 año</option>
-                <option value="ytd">Año en curso</option>
-                <option value="2y">2 años</option>
-                <option value="5y">5 años</option>
-                <option value="10y">10 años</option>
-                <option value="max">Máx</option>
+                <option value="" disabled {% if not selected_period %}selected{% endif %}>Selecciona un periodo</option>
+                <option value="5d" {% if selected_period == '5d' %}selected{% endif %}>5 días</option>
+                <option value="1mo" {% if selected_period == '1mo' %}selected{% endif %}>1 mes</option>
+                <option value="3mo" {% if selected_period == '3mo' %}selected{% endif %}>3 meses</option>
+                <option value="6mo" {% if selected_period == '6mo' %}selected{% endif %}>6 meses</option>
+                <option value="1y" {% if selected_period == '1y' %}selected{% endif %}>1 año</option>
+                <option value="ytd" {% if selected_period == 'ytd' %}selected{% endif %}>Año en curso</option>
+                <option value="2y" {% if selected_period == '2y' %}selected{% endif %}>2 años</option>
+                <option value="5y" {% if selected_period == '5y' %}selected{% endif %}>5 años</option>
+                <option value="10y" {% if selected_period == '10y' %}selected{% endif %}>10 años</option>
+                <option value="max" {% if selected_period == 'max' %}selected{% endif %}>Máx</option>
             </select>
             <label for="test_percent" class="mt-2">Porcentaje para testing:</label>
-            <input type="number" name="test_percent" id="test_percent" class="form-control" value="20" min="1" max="80" style="max-width:150px;" />
+            <input type="number" name="test_percent" id="test_percent" class="form-control" value="{{ selected_test_percent }}" min="1" max="80" style="max-width:150px;" />
             <button type="submit" class="btn btn-primary mt-2">Consultar y pronosticar</button>
         </form>
+
+        {% if display_period %}
+            <div class="alert alert-info mt-3">
+                <strong>Última selección:</strong>
+                Periodo: {{ display_period }}, Porcentaje testing: {{ display_test_percent }}%
+            </div>
+        {% endif %}
 
         {% if metrics_table %}
             <h2 class="mt-4">Resultados de métricas</h2>
