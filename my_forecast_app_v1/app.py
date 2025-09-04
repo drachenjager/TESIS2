@@ -99,25 +99,47 @@ def index():
         formatted_forecasts = {
             model: format_forecast(vals) for model, vals in forecast_values.items()
         }
+
+        period_labels = {
+            "5d": "5 días",
+            "1mo": "1 mes",
+            "3mo": "3 meses",
+            "6mo": "6 meses",
+            "1y": "1 año",
+            "ytd": "Año en curso",
+            "2y": "2 años",
+            "5y": "5 años",
+            "10y": "10 años",
+            "max": "Máx",
+        }
+        display_period = period_labels.get(selected_period, selected_period)
+
         return render_template(
             "index.html",
-            period=selected_period,
             metrics_table=metrics_table,
             forecast_values=formatted_forecasts,
             train_series=train_series,
             test_series=test_series,
             predictions_dict=predictions_dict,
             dates=dates,
+            selected_period=None,
+            selected_test_percent="",
+            display_period=display_period,
+            display_test_percent=test_percent,
         )
     else:
-        # Método GET: solo mostramos el formulario vacío
-        return render_template("index.html")
+        # Método GET: mostramos el formulario con valores por defecto
+        return render_template(
+            "index.html",
+            selected_period="1mo",
+            selected_test_percent=20,
+        )
 
 
 def get_data_from_yahoo(period="1y"):
     """
     Descarga datos de USD/MXN de Yahoo Finance en base a un string de período.
-    Periodos válidos: '1d', '5d', '1mo', '3mo', '6mo', '1y', 'ytd', '2y',
+    Periodos válidos: '5d', '1mo', '3mo', '6mo', '1y', 'ytd', '2y',
     '5y', '10y' y 'max'.
     """
     ticker = "MXN=X"  # El par USD/MXN en Yahoo Finance se identifica como "MXN=X"

@@ -33,7 +33,6 @@ Antes de poder construir o desplegar la aplicación asegúrate de tener:
 
 Al iniciar la aplicación podrás elegir el período de datos descargados desde Yahoo Finance. Las opciones son:
 
-- `1d`
 - `5d`
 - `1mo`
 - `3mo`
