@@ -1,7 +1,9 @@
+/* Color de fondo general de la página */
 body {
     background-color: #f5f7fa;
 }
 
+/* Caja contenedora para centrar el contenido principal */
 .container-box {
     background: #ffffff;
     padding: 30px;
@@ -9,17 +11,20 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Estilos base de la tabla de métricas */
 #metrics-table {
     border-collapse: separate;
     border-spacing: 10px 0;
     margin-top: 10px;
 }
 
+/* Espaciado y alineación de celdas */
 #metrics-table th, #metrics-table td {
     padding: 8px 12px;
     text-align: center;
 }
 
+/* Apariencia de los encabezados de la tabla */
 #metrics-table th {
     color: #000;
     font-weight: bold;

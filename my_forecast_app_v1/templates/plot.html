@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8" />
     <title>Resultado del Modelo</title>
+    <!-- Tema de Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/flatly/bootstrap.min.css" />
+    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body class="p-4">
+    <!-- Contenedor principal de resultados -->
     <div class="container container-box">
         <h1>Modelo seleccionado: {{ model_name }}</h1>
         <h3 class="mt-4">Series de valores</h3>
         <p><strong>Entrenamiento:</strong> {{ train_display }}</p>
         <p><strong>Reales (test):</strong> {{ test_display }}</p>
         <p><strong>Pronosticados:</strong> {{ pred_display }}</p>
+        <!-- Canvas donde se dibujará el gráfico con Chart.js -->
         <canvas id="chart" height="100"></canvas>
+        <!-- Formulario para descargar los datos en Excel -->
         <form method="POST" action="{{ url_for('download_excel') }}" class="mt-3">
             <input type="hidden" name="model_name" value="{{ model_name }}" />
             <input type="hidden" name="train_series" value='{{ train_series|tojson }}' />
@@ -23,6 +28,7 @@
             <button type="submit" class="btn btn-primary">Guardar en Excel</button>
         </form>
     </div>
+    <!-- Bibliotecas JavaScript y script para dibujar el gráfico -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -31,6 +37,7 @@
         const testReal = {{ test_series|tojson }};
         const testPred = {{ pred_series|tojson }};
 
+        // Configura y renderiza el gráfico de líneas con las tres series
         new Chart(document.getElementById('chart'), {
             type: 'line',
             data: {

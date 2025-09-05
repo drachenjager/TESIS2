@@ -1,3 +1,5 @@
+"""Aplicación principal de Flask para pronosticar el tipo de cambio USD/MXN."""
+
 from flask import Flask, render_template, request, send_file
 import json
 import yfinance as yf
@@ -5,11 +7,13 @@ import pandas as pd
 from datetime import datetime, timedelta
 import io
 
-# Importamos funciones de modelado (veremos detalles luego)
+# Importamos las funciones de modelado que viven en el paquete ``models``
+# (series de tiempo, machine learning y deep learning).
 from models.ts_models import train_sarima, train_holtwinters
 from models.ml_models import train_linear_regression, train_random_forest
 from models.dl_models import train_rnn, train_lstm, prepare_data_dl
 
+# Inicializamos la aplicación Flask
 app = Flask(__name__)
 
 
@@ -137,10 +141,17 @@ def index():
 
 
 def get_data_from_yahoo(period="1y"):
-    """
-    Descarga datos de USD/MXN de Yahoo Finance en base a un string de período.
-    Periodos válidos: '5d', '1mo', '3mo', '6mo', '1y', 'ytd', '2y',
-    '5y', '10y' y 'max'.
+    """Descarga datos históricos de Yahoo Finance.
+
+    Parameters
+    ----------
+    period: str, opcional
+        Periodo de consulta aceptado por yfinance ("1y" por defecto).
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame con dos columnas: ``Date`` y ``Close``.
     """
     ticker = "MXN=X"  # El par USD/MXN en Yahoo Finance se identifica como "MXN=X"
     data = yf.download(ticker, period=period, interval="1d")
@@ -151,19 +162,39 @@ def get_data_from_yahoo(period="1y"):
     else:
         close = data["Close"]
 
+    # Limpieza básica: eliminamos valores faltantes y estandarizamos nombres
     close = close.dropna().reset_index()
     close.columns = ["Date", "Close"]
     return close
 
 
 def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
+    """Entrena todos los modelos y calcula métricas.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Serie temporal con columnas ``Date`` y ``Close``.
+    forecast_steps : int, opcional
+        Número de pasos a pronosticar hacia adelante.
+    test_size : int, opcional
+        Número de observaciones destinadas al conjunto de prueba.
+
+    Returns
+    -------
+    tuple
+        ``(metrics_df, forecast_values, train_series, test_series, predictions_dict)``
+    """
+
     ts = df["Close"].values
+    # Ajustamos el tamaño de prueba si es mayor que la serie
     if test_size >= len(ts):
         test_size = max(1, len(ts) // 2)
+    # Separamos en entrenamiento y prueba
     train_data = ts[:-test_size]
     test_data = ts[-test_size:]
 
-    # Series de tiempo
+    # ----- Modelos de series de tiempo -----
     sarima_metrics, sarima_pred, sarima_forecast = train_sarima(
         train_data, test_data, forecast_steps
     )
@@ -171,7 +202,7 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
         train_data, test_data, forecast_steps
     )
 
-    # ML
+    # ----- Modelos de Machine Learning -----
     linreg_metrics, linreg_pred, linreg_forecast = train_linear_regression(
         train_data, test_data, forecast_steps
     )
@@ -179,7 +210,7 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
         train_data, test_data, forecast_steps
     )
 
-    # Deep Learning
+    # ----- Modelos de Deep Learning -----
     rnn_metrics, rnn_pred, rnn_forecast = train_rnn(
         train_data, test_data, forecast_steps
     )
@@ -187,7 +218,7 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
         train_data, test_data, forecast_steps
     )
 
-    # Construimos DataFrame de métricas
+    # Construimos un DataFrame con todas las métricas obtenidas
     metrics_df = pd.DataFrame(
         [
             sarima_metrics,
@@ -199,10 +230,10 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
         ]
     )
 
-    # Expresar el MAPE como porcentaje
+    # Expresar el MAPE como porcentaje para facilitar la interpretación
     metrics_df["MAPE"] = metrics_df["MAPE"] * 100
 
-    # Forecast "del siguiente punto" (por simplicidad tomamos el forecast devuelto)
+    # Diccionario con los valores de pronóstico para cada modelo
     forecast_values = {
         "SARIMA": sarima_forecast,
         "Holt-Winters": hw_forecast,
@@ -212,9 +243,11 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
         "LSTM": lstm_forecast,
     }
 
+    # Listas combinando valores de train/test para facilitar el graficado
     train_series = train_data.tolist() + [None] * len(test_data)
     test_series = [None] * len(train_data) + test_data.tolist()
 
+    # Predicciones alineadas con el eje temporal para cada modelo
     predictions_dict = {
         "SARIMA": [None] * len(train_data) + sarima_pred.tolist(),
         "Holt-Winters": [None] * len(train_data) + hw_pred.tolist(),
@@ -229,6 +262,11 @@ def train_and_evaluate_all_models(df, forecast_steps=1, test_size=5):
 
 @app.route("/plot", methods=["POST"])
 def plot():
+    """Muestra la gráfica de un modelo seleccionado.
+
+    Recupera las series enviadas por el formulario, las formatea para
+    visualización y renderiza la plantilla ``plot.html``.
+    """
     model_name = request.form.get("model_choice")
     train_series = json.loads(request.form.get("train_series"))
     test_series = json.loads(request.form.get("test_series"))
@@ -236,8 +274,10 @@ def plot():
     pred_series = json.loads(request.form.get(f"pred_{model_name}"))
 
     def format_series(series):
+        """Convierte una serie numérica a una cadena separada por comas."""
         return ", ".join(f"{x:.2f}" for x in series if x is not None)
 
+    # Versiones en texto de las series para mostrarlas en pantalla
     train_display = format_series(train_series)
     test_display = format_series(test_series)
     pred_display = format_series(pred_series)
@@ -257,12 +297,18 @@ def plot():
 
 @app.route("/download_excel", methods=["POST"])
 def download_excel():
+    """Genera un archivo Excel con los datos y el pronóstico del modelo.
+
+    El archivo contiene además una gráfica lineal que compara los valores de
+    entrenamiento, las observaciones reales y las predicciones.
+    """
     model_name = request.form.get("model_name")
     train_series = json.loads(request.form.get("train_series"))
     test_series = json.loads(request.form.get("test_series"))
     pred_series = json.loads(request.form.get("pred_series"))
     dates = json.loads(request.form.get("dates"))
 
+    # Construimos un DataFrame para exportar a Excel
     df = pd.DataFrame(
         {
             "Date": dates,
@@ -272,6 +318,7 @@ def download_excel():
         }
     )
 
+    # Creamos el archivo Excel en memoria y añadimos una gráfica
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="Datos")

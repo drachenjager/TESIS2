@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8" />
     <title>Pronóstico USD/MXN</title>
+    <!-- Framework Bootstrap (tema Flatly) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.1.3/dist/flatly/bootstrap.min.css" />
+    <!-- Estilos para la tabla interactiva -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+    <!-- Hoja de estilos propia -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body class="p-4">
+    <!-- Contenedor principal con fondo blanco -->
     <div class="container container-box">
         <h1>Pronóstico de USD/MXN</h1>
+        <!-- Formulario para elegir periodo y porcentaje de testing -->
         <form method="POST">
             <label for="period_select">Selecciona el periodo:</label>
             <select name="period_select" id="period_select" class="form-select" style="max-width:300px;">
@@ -31,6 +36,7 @@
         </form>
 
         {% if display_period %}
+            <!-- Mensaje que muestra la última selección realizada -->
             <div class="alert alert-info mt-3">
                 <strong>Última selección:</strong>
                 Periodo: {{ display_period }}, Porcentaje testing: {{ display_test_percent }}%
@@ -38,6 +44,7 @@
         {% endif %}
 
         {% if metrics_table %}
+            <!-- Tabla con métricas de evaluación de cada modelo -->
             <h2 class="mt-4">Resultados de métricas</h2>
             <div class="table-responsive">
                 <!-- Muestra el DataFrame de métricas -->
@@ -46,6 +53,7 @@
         {% endif %}
 
         {% if forecast_values %}
+            <!-- Lista con los valores pronosticados por cada modelo -->
             <h2 class="mt-4">Pronóstico de los próximos puntos</h2>
             <!-- forecast_values already holds comma-separated strings rounded to two decimals -->
             <ul>
@@ -56,6 +64,7 @@
         {% endif %}
 
         {% if metrics_table %}
+        <!-- Formulario para seleccionar el modelo a graficar y enviar datos -->
         <form method="POST" action="{{ url_for('plot') }}" target="_blank" class="mt-4">
             <p>Selecciona el modelo que prefieras:</p>
             {% for model in predictions_dict.keys() %}
@@ -65,6 +74,7 @@
             </div>
             {% endfor %}
 
+            <!-- Series y predicciones se envían ocultas para la vista de gráficos -->
             <input type="hidden" name="train_series" value='{{ train_series|tojson }}'>
             <input type="hidden" name="test_series" value='{{ test_series|tojson }}'>
             <input type="hidden" name="dates" value='{{ dates|tojson }}'>
@@ -76,6 +86,7 @@
         </form>
         {% endif %}
     </div>
+    <!-- Bibliotecas JavaScript -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
